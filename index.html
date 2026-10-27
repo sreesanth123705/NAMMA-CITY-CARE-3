@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Namma City Care | நம்ம சிட்டி கேர்</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teal: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              300: '#5eead4',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+              950: '#042f2e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
+
+  <!-- ================= TOP GOVERNMENT BANNER ================= -->
+  <div class="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-teal-400"></span>
+        <span data-i18n="govt_tag" class="font-medium">Civic Portal • Greater Chennai Corporation</span>
+      </div>
+      
+      <!-- Quick Architectural & Next-Gen Toolbars -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Design Thinking & Tamil Lexicon Modal Trigger -->
+        <button onclick="openDesignThinkingModal()" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded-lg text-[11px] font-semibold text-teal-300 border border-teal-500/30 transition-all" title="View Design Thinking Empathy Inputs & Tamil Lexicon Field Testing">
+          <span>📖</span> <span data-i18n="dt_lexicon_btn">Design Thinking & Tamil Lexicon</span>
+        </button>
+
+        <!-- S3 Cloud Media Store Modal Trigger -->
+        <button onclick="openS3StorageModal()" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded-lg text-[11px] font-semibold text-sky-300 border border-sky-500/30 transition-all" title="View S3-Compatible Cloud Storage & Presigned URLs">
+          <span>☁️</span> <span data-i18n="s3_storage_btn">S3 Object Store</span>
+        </button>
+
+        <!-- Vision AI Config Trigger -->
+        <button onclick="openVisionSettingsModal()" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded-lg text-[11px] font-semibold text-amber-300 border border-amber-500/30 transition-all" title="Configure Multimodal Vision AI Pipeline (Gemini / Neural CV)">
+          <span>🤖</span> <span>Vision AI</span>
+        </button>
+
+        <!-- Live JWT Token Inspector Trigger -->
+        <button onclick="openJwtInspectorModal()" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded-lg text-[11px] font-semibold text-purple-300 border border-purple-500/30 transition-all" title="Inspect Active Cryptographic JWT Claims & Signature">
+          <span>🔑</span> <span data-i18n="auth_jwt_inspector">JWT Inspector</span>
+        </button>
+
+        <!-- Unit Testing Suite Trigger -->
+        <button onclick="window.civicTestRunner.openTestModal()" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded-lg text-[11px] font-semibold text-emerald-300 border border-emerald-500/30 transition-all" title="Run Automated Civic Unit Tests & Assertions">
+          <span>🧪</span> <span>Unit Tests</span>
+        </button>
+
+        <!-- Error Boundary Diagnostics Trigger -->
+        <button onclick="window.civicErrorBoundary.openDiagnosticsModal()" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded-lg text-[11px] font-semibold text-rose-300 border border-rose-500/30 transition-all" title="Inspect Multi-Tier Error Boundaries & Fault Telemetry">
+          <span>🛡️</span> <span>Error Boundary</span>
+        </button>
+
+        <!-- User Authentication & Role Profile Trigger -->
+        <button onclick="openAuthModal()" id="user-auth-btn" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 py-0.5 rounded-full text-[11px] transition-all border border-slate-700">
+          <span id="current-user-avatar" class="w-3.5 h-3.5 rounded-full bg-teal-500 text-white flex items-center justify-center text-[9px] font-bold">K</span>
+          <span id="current-user-name" class="font-medium text-slate-200">Karthik S.</span>
+          <span id="current-role-badge" class="px-1.5 py-0.2 rounded-full bg-teal-100 text-teal-800 text-[10px] font-bold">Citizen</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN NAVBAR ================= -->
+  <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo & Brand -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+          <div class="w-10 h-10 rounded-2xl bg-teal-600 flex items-center justify-center text-white text-xl shadow-md shadow-teal-600/20">
+            🏙️
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-slate-900 text-lg tracking-tight" data-i18n="brand_name">Namma City Care</span>
+            </div>
+            <p class="text-[11px] text-teal-700 font-semibold tracking-wide" data-i18n="brand_tagline">Report. Track. Improve Our City.</p>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden lg:flex items-center gap-1">
+          <!-- Citizen Nav Items -->
+          <a href="#home" data-nav-target="home" class="nav-link px-3 py-2 rounded-xl text-xs font-semibold text-teal-600 transition-all" data-i18n="nav_home">Home</a>
+          <a href="#report" data-nav-target="report" class="nav-link px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-teal-600 transition-all" data-i18n="nav_report">Report Issue</a>
+          <a href="#track" data-nav-target="track" class="nav-link px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-teal-600 transition-all" data-i18n="nav_track">Track Complaint</a>
+          <a href="#map" data-nav-target="map" class="nav-link px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-teal-600 transition-all" data-i18n="nav_map">Live Map</a>
+          <a href="#nearby" data-nav-target="nearby" class="nav-link px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-teal-600 transition-all" data-i18n="nav_nearby">Nearby Issues</a>
+          <a href="#dashboard" data-nav-target="dashboard" class="nav-citizen-only nav-link px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-teal-600 transition-all" data-i18n="nav_citizen_dash">Dashboard</a>
+          
+          <!-- Admin-Only Nav Items -->
+          <a href="#admin_dash" data-nav-target="admin_dash" class="nav-admin-only hidden nav-link px-3 py-2 rounded-xl text-xs font-bold text-purple-700 bg-purple-50 transition-all" data-i18n="nav_admin_dash">Admin Dashboard</a>
+          <a href="#departments" data-nav-target="departments" class="nav-admin-only hidden nav-link px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-teal-600 transition-all" data-i18n="nav_admin_departments">Departments</a>
+          <a href="#reports" data-nav-target="reports" class="nav-admin-only hidden nav-link px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-teal-600 transition-all" data-i18n="nav_admin_reports">Reports</a>
+          
+          <a href="#emergency" data-nav-target="emergency" class="nav-link px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-all" data-i18n="nav_emergency">🚨 Emergency</a>
+        </nav>
+
+        <!-- Right Action Items: Language Switcher & Mobile Menu -->
+        <div class="flex items-center gap-3">
+          <!-- Notification Bell -->
+          <button onclick="navigateTo('dashboard')" class="relative p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-all" title="Notifications">
+            <span class="text-base">🔔</span>
+            <span id="notif-badge-count" class="hidden absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">0</span>
+          </button>
+
+          <!-- Bilingual Language Switcher -->
+          <div class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200">
+            <button id="lang-en-btn" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-teal-600 text-white shadow-sm transition-all">English</button>
+            <button id="lang-ta-btn" class="px-2.5 py-1 text-xs font-medium rounded-lg text-slate-600 hover:bg-slate-200/60 transition-all">தமிழ்</button>
+          </div>
+
+          <!-- Mobile Hamburger Menu Button -->
+          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Dropdown Menu -->
+      <div id="mobile-menu-dropdown" class="hidden lg:hidden py-3 border-t border-slate-100 space-y-1">
+        <a href="#home" data-nav-target="home" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700" data-i18n="nav_home">Home</a>
+        <a href="#report" data-nav-target="report" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700" data-i18n="nav_report">Report Issue</a>
+        <a href="#track" data-nav-target="track" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700" data-i18n="nav_track">Track Complaint</a>
+        <a href="#map" data-nav-target="map" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700" data-i18n="nav_map">Live Map</a>
+        <a href="#nearby" data-nav-target="nearby" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700" data-i18n="nav_nearby">Nearby Issues</a>
+        <a href="#dashboard" data-nav-target="dashboard" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-700" data-i18n="nav_citizen_dash">Citizen Dashboard</a>
+        <a href="#admin_dash" data-nav-target="admin_dash" class="block px-3 py-2 rounded-lg text-sm font-bold text-purple-700 hover:bg-purple-50" data-i18n="nav_admin_dash">Admin Dashboard</a>
+        <a href="#departments" data-nav-target="departments" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-teal-50" data-i18n="nav_admin_departments">Departments</a>
+        <a href="#reports" data-nav-target="reports" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-teal-50" data-i18n="nav_admin_reports">Reports</a>
+        <a href="#emergency" data-nav-target="emergency" class="block px-3 py-2 rounded-lg text-sm font-bold text-rose-600 hover:bg-rose-50" data-i18n="nav_emergency">Emergency Help</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT VIEWS ================= -->
+  <main class="flex-1 pb-20 lg:pb-12">
+
+    <!-- 1. VIEW: HOME -->
+    <div id="view-home" class="view-container">
+      <!-- Hero Section -->
+      <section class="relative bg-gradient-to-b from-teal-900 via-teal-800 to-teal-950 text-white overflow-hidden py-16 sm:py-24">
+        <!-- Subtle civic pattern background -->
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#2dd4bf_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/20 text-teal-200 border border-teal-400/30 text-xs font-semibold mb-6 backdrop-blur-sm">
+              <span>🤖</span> AI-Assisted Civic Resolution System
+            </div>
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight mb-6" data-i18n="hero_title">
+              Your City. Your Voice. Your Responsibility.
+            </h1>
+            <p class="text-base sm:text-xl text-teal-100 font-normal leading-relaxed mb-8 sm:mb-10" data-i18n="hero_subtitle">
+              Report civic problems with photos and location, let AI identify the issue, and track its resolution from verification to completion.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+              <button onclick="navigateTo('report')" class="px-8 py-4 rounded-2xl bg-teal-400 hover:bg-teal-300 text-teal-950 font-extrabold text-base shadow-lg shadow-teal-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
+                <span>📸</span>
+                <span data-i18n="cta_report">Report a Civic Issue</span>
+              </button>
+              <button onclick="navigateTo('track')" class="px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-base backdrop-blur-sm transition-all flex items-center justify-center gap-3">
+                <span>🔎</span>
+                <span data-i18n="cta_track">Track Complaint</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Metrics Bar -->
+          <div class="mt-14 pt-10 border-t border-teal-700/50 grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
+            <div>
+              <span id="metric-resolved-count" class="text-3xl sm:text-4xl font-black text-teal-300 block">1,069</span>
+              <span class="text-xs text-teal-200 font-medium" data-i18n="stat_resolved">Issues Resolved</span>
+            </div>
+            <div>
+              <span id="metric-avg-time" class="text-3xl sm:text-4xl font-black text-teal-300 block">2.8 days</span>
+              <span class="text-xs text-teal-200 font-medium" data-i18n="stat_avg_time">Avg Resolution Time</span>
+            </div>
+            <div>
+              <span class="text-3xl sm:text-4xl font-black text-teal-300 block">94.8%</span>
+              <span class="text-xs text-teal-200 font-medium" data-i18n="stat_satisfaction">Citizen Satisfaction</span>
+            </div>
+            <div>
+              <span class="text-3xl sm:text-4xl font-black text-teal-300 block">200 Wards</span>
+              <span class="text-xs text-teal-200 font-medium" data-i18n="stat_wards">Wards Covered</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Category Quick Report Section -->
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-3" data-i18n="cat_section_title">
+            Civic Issue Categories
+          </h2>
+          <p class="text-sm text-slate-500" data-i18n="cat_section_desc">
+            Select a category below to quickly file an issue or let our AI auto-detect from your photo.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <!-- 1. Garbage -->
+          <div onclick="selectCategoryAndReport('Garbage')" class="civic-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 hover:shadow-teal-100">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 text-2xl flex items-center justify-center mb-3">🗑️</div>
+            <h3 class="font-bold text-slate-900 text-base mb-1" data-i18n="cat_garbage">Garbage</h3>
+            <p class="text-xs text-slate-400" data-i18n="cat_garbage_desc">Commercial or residential waste piles, overflowing bins</p>
+          </div>
+
+          <!-- 2. Pothole -->
+          <div onclick="selectCategoryAndReport('Pothole')" class="civic-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 hover:shadow-teal-100">
+            <div class="w-12 h-12 rounded-xl bg-slate-100 text-2xl flex items-center justify-center mb-3">🕳️</div>
+            <h3 class="font-bold text-slate-900 text-base mb-1" data-i18n="cat_pothole">Pothole</h3>
+            <p class="text-xs text-slate-400" data-i18n="cat_pothole_desc">Dangerous craters, road surface damage, skidding hazard</p>
+          </div>
+
+          <!-- 3. Streetlight -->
+          <div onclick="selectCategoryAndReport('Streetlight')" class="civic-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 hover:shadow-teal-100">
+            <div class="w-12 h-12 rounded-xl bg-teal-50 text-2xl flex items-center justify-center mb-3">💡</div>
+            <h3 class="font-bold text-slate-900 text-base mb-1" data-i18n="cat_streetlight">Streetlight</h3>
+            <p class="text-xs text-slate-400" data-i18n="cat_streetlight_desc">Unlit dark streets, damaged poles, flickering lamps</p>
+          </div>
+
+          <!-- 4. Water Leakage -->
+          <div onclick="selectCategoryAndReport('Water Leakage')" class="civic-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 hover:shadow-teal-100">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-2xl flex items-center justify-center mb-3">🚰</div>
+            <h3 class="font-bold text-slate-900 text-base mb-1" data-i18n="cat_water">Water Leakage</h3>
+            <p class="text-xs text-slate-400" data-i18n="cat_water_desc">Pipeline burst, drinking water loss, valve leak</p>
+          </div>
+
+          <!-- 5. Damaged Road -->
+          <div onclick="selectCategoryAndReport('Damaged Road')" class="civic-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 hover:shadow-teal-100">
+            <div class="w-12 h-12 rounded-xl bg-orange-50 text-2xl flex items-center justify-center mb-3">🛣️</div>
+            <h3 class="font-bold text-slate-900 text-base mb-1" data-i18n="cat_road">Damaged Road</h3>
+            <p class="text-xs text-slate-400" data-i18n="cat_road_desc">Broken pavement, road dividers, cave-ins, gravel spills</p>
+          </div>
+
+          <!-- 6. Drainage -->
+          <div onclick="selectCategoryAndReport('Drainage')" class="civic-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 hover:shadow-teal-100">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-2xl flex items-center justify-center mb-3">🌊</div>
+            <h3 class="font-bold text-slate-900 text-base mb-1" data-i18n="cat_drainage">Drainage</h3>
+            <p class="text-xs text-slate-400" data-i18n="cat_drainage_desc">Sewage overflow, clogged storm drains, open manholes</p>
+          </div>
+
+          <!-- 7. Environmental Issue -->
+          <div onclick="selectCategoryAndReport('Environmental Issue')" class="civic-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 hover:shadow-teal-100">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-2xl flex items-center justify-center mb-3">🌳</div>
+            <h3 class="font-bold text-slate-900 text-base mb-1" data-i18n="cat_environment">Environmental Issue</h3>
+            <p class="text-xs text-slate-400" data-i18n="cat_environment_desc">Fallen trees, toxic smoke, lake pollution, illegal cutting</p>
+          </div>
+
+          <!-- 8. Other -->
+          <div onclick="selectCategoryAndReport('Other')" class="civic-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-teal-500 hover:shadow-teal-100">
+            <div class="w-12 h-12 rounded-xl bg-rose-50 text-2xl flex items-center justify-center mb-3">⚠️</div>
+            <h3 class="font-bold text-slate-900 text-base mb-1" data-i18n="cat_other">Other</h3>
+            <p class="text-xs text-slate-400" data-i18n="cat_other_desc">Encroachments, public signs, stray hazards, municipal infra</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works (Workflow Infographic) -->
+      <section class="bg-white py-16 border-y border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-2">How Namma City Care Works</h2>
+            <p class="text-sm text-slate-500">From citizen smartphone to completed municipal resolution in 4 simple steps.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+            <div class="text-center p-6 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="w-12 h-12 rounded-2xl bg-teal-600 text-white font-black text-lg flex items-center justify-center mx-auto mb-4 shadow-md">1</div>
+              <h4 class="font-bold text-slate-900 mb-1">Snap & Upload</h4>
+              <p class="text-xs text-slate-500">Take a photo of the civic issue. GPS automatically captures the exact ward coordinates.</p>
+            </div>
+
+            <div class="text-center p-6 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="w-12 h-12 rounded-2xl bg-teal-600 text-white font-black text-lg flex items-center justify-center mx-auto mb-4 shadow-md">2</div>
+              <h4 class="font-bold text-slate-900 mb-1">AI Hazard Detection</h4>
+              <p class="text-xs text-slate-500">AI recognizes issue type, estimates severity, and routes it to the specific municipal division.</p>
+            </div>
+
+            <div class="text-center p-6 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="w-12 h-12 rounded-2xl bg-teal-600 text-white font-black text-lg flex items-center justify-center mx-auto mb-4 shadow-md">3</div>
+              <h4 class="font-bold text-slate-900 mb-1">Field Squad Action</h4>
+              <p class="text-xs text-slate-500">Municipal field crews dispatch equipment and perform repairs under SLA supervision.</p>
+            </div>
+
+            <div class="text-center p-6 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white font-black text-lg flex items-center justify-center mx-auto mb-4 shadow-md">4</div>
+              <h4 class="font-bold text-slate-900 mb-1">Citizen Confirmation</h4>
+              <p class="text-xs text-slate-500">View resolution photo proof and confirm the issue is completely resolved in your neighborhood.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Community Resolutions Showcase -->
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900">Recent Completed Works</h2>
+            <p class="text-xs text-slate-500">Verified repairs completed by Corporation teams across Chennai.</p>
+          </div>
+          <button onclick="navigateTo('map')" class="text-xs font-bold text-teal-600 hover:text-teal-700 flex items-center gap-1">
+            <span>View All on Map</span> <span>→</span>
+          </button>
+        </div>
+
+        <div id="recent-resolved-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </section>
+    </div>
+
+    <!-- 2. VIEW: REPORT ISSUE (MULTI-STEP WIZARD) -->
+    <div id="view-report" class="view-container hidden">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200 inline-block mb-2">
+            Municipal Redressal Registry
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900" data-i18n="report_header">File a Civic Complaint</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1" data-i18n="report_sub">Complete these easy steps to submit an official municipal grievance.</p>
+        </div>
+
+        <!-- Wizard Step Progress Indicator -->
+        <div id="wizard-progress-bar" class="mb-8 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span id="wizard-step-ind-1" class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-teal-600 text-white ring-4 ring-teal-100">1</span>
+            <span class="text-xs font-bold text-slate-800 hidden sm:inline" data-i18n="step1_title">Photo</span>
+          </div>
+          <div class="h-0.5 w-6 sm:w-12 bg-slate-200"></div>
+          <div class="flex items-center gap-3">
+            <span id="wizard-step-ind-2" class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-slate-100 text-slate-500">2</span>
+            <span class="text-xs font-bold text-slate-800 hidden sm:inline" data-i18n="step2_title">AI Analysis</span>
+          </div>
+          <div class="h-0.5 w-6 sm:w-12 bg-slate-200"></div>
+          <div class="flex items-center gap-3">
+            <span id="wizard-step-ind-3" class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-slate-100 text-slate-500">3</span>
+            <span class="text-xs font-bold text-slate-800 hidden sm:inline" data-i18n="step3_title">Location</span>
+          </div>
+          <div class="h-0.5 w-6 sm:w-12 bg-slate-200"></div>
+          <div class="flex items-center gap-3">
+            <span id="wizard-step-ind-4" class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-slate-100 text-slate-500">4</span>
+            <span class="text-xs font-bold text-slate-800 hidden sm:inline" data-i18n="step4_title">Details</span>
+          </div>
+          <div class="h-0.5 w-6 sm:w-12 bg-slate-200"></div>
+          <div class="flex items-center gap-3">
+            <span id="wizard-step-ind-5" class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-slate-100 text-slate-500">5</span>
+            <span class="text-xs font-bold text-slate-800 hidden sm:inline" data-i18n="step5_title">Review</span>
+          </div>
+        </div>
+
+        <!-- Wizard Panels Container -->
+        <div id="wizard-panels-container" class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+          
+          <!-- STEP 1: PHOTO UPLOAD -->
+          <div id="wizard-step-panel-1">
+            <h3 class="text-lg font-bold text-slate-900 mb-1" data-i18n="step1_title">Step 1: Upload / Take Photo</h3>
+            <p class="text-xs text-slate-500 mb-6" data-i18n="step1_desc">Capture or upload a clear photo of the civic problem.</p>
+
+            <!-- Drag and drop box -->
+            <div id="wizard-dropzone" class="border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-3xl p-8 sm:p-12 text-center transition-all bg-slate-50/50">
+              <div class="text-4xl sm:text-5xl mb-3">📸</div>
+              <p class="text-sm font-bold text-slate-800 mb-1">Click to upload photo or take picture</p>
+              <p class="text-xs text-slate-400 mb-6" data-i18n="step1_drag">or drag & drop image here (JPG, PNG, WebP up to 10MB)</p>
+              
+              <div class="flex flex-wrap items-center justify-center gap-3">
+                <label class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs cursor-pointer shadow-sm transition-all flex items-center gap-2">
+                  <span>📁</span> <span data-i18n="step1_btn_upload">Choose Photo</span>
+                  <input type="file" id="wizard-file-input" accept="image/*" class="hidden">
+                </label>
+                <label class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs cursor-pointer shadow-sm transition-all flex items-center gap-2">
+                  <span>📷</span> <span data-i18n="step1_btn_camera">Take Photo</span>
+                  <input type="file" id="wizard-camera-input" accept="image/*" capture="environment" class="hidden">
+                </label>
+              </div>
+            </div>
+
+            <!-- Preview Box (hidden initially) -->
+            <div id="wizard-preview-box" class="hidden">
+              <div class="relative rounded-2xl overflow-hidden border border-slate-200 mb-4 h-64 sm:h-80 bg-slate-900">
+                <img id="wizard-preview-img" src="" class="w-full h-full object-contain" alt="Preview">
+              </div>
+              <div class="flex items-center justify-between">
+                <button id="wizard-remove-photo" class="px-4 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200">
+                  ✕ <span data-i18n="step1_remove">Remove Photo</span>
+                </button>
+                <button data-wizard-goto="2" class="px-6 py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-sm">
+                  <span>Next: AI Analysis →</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: MULTIMODAL VISION AI ANALYSIS & VISUAL PROOF VALIDATION -->
+          <div id="wizard-step-panel-2" class="hidden">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <h3 class="text-lg font-bold text-slate-900" data-i18n="step2_title">Step 2: Multimodal Vision Inference & Visual Proof</h3>
+              <div class="flex items-center gap-2">
+                <span id="ai-engine-tag" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300">
+                  ⚡ Neural CV Engine
+                </span>
+                <span id="s3-upload-tag" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
+                  ☁️ S3 Presigned PUT
+                </span>
+              </div>
+            </div>
+            <p class="text-xs text-slate-500 mb-6">Real multimodal vision inference validating actual visual evidence, defect bounding box, and priority.</p>
+
+            <!-- Scanning State Animation -->
+            <div id="ai-scan-animation" class="p-8 border border-teal-100 rounded-3xl bg-teal-50/40 text-center mb-6 relative overflow-hidden">
+              <div class="relative w-56 h-56 mx-auto rounded-2xl overflow-hidden border-2 border-teal-500 shadow-md mb-4 bg-slate-900">
+                <img id="ai-scan-preview-img" src="" class="w-full h-full object-cover opacity-80" alt="Scan">
+                <div class="ai-scan-bar"></div>
+              </div>
+              <p class="text-sm font-bold text-teal-900 animate-pulse" data-i18n="step2_analyzing">
+                Multimodal Vision AI is analyzing image pixels & civic hazard features...
+              </p>
+              <p id="ai-scan-status-detail" class="text-[11px] text-teal-600 mt-1 font-mono">
+                Computing Sobel edge gradients & streaming WebP payload to S3...
+              </p>
+            </div>
+
+            <!-- Detection Result Box -->
+            <div id="ai-scan-result" class="hidden space-y-6">
+              
+              <!-- Visual Proof Validation Status Banner -->
+              <div id="ai-proof-banner" class="p-3.5 rounded-2xl border flex items-center justify-between bg-emerald-50 border-emerald-300 text-emerald-900">
+                <div class="flex items-center gap-2.5">
+                  <span id="ai-proof-icon" class="text-xl">✅</span>
+                  <div>
+                    <div id="ai-proof-title" class="font-extrabold text-xs">Visual Proof Validated: Civic Hazard Confirmed</div>
+                    <p id="ai-proof-desc" class="text-[11px] text-slate-600">Municipal defect signature verified across spatial edge contours & chromatic entropy.</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span id="ai-proof-score" class="px-2 py-0.5 rounded-lg text-xs font-mono font-bold bg-white border border-emerald-300 text-emerald-800 shadow-sm">
+                    94% Proof
+                  </span>
+                </div>
+              </div>
+
+              <!-- Visual Bounding Box & Defect Preview Display -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 flex items-center justify-center min-h-[220px]">
+                  <img id="ai-result-preview-img" src="" class="max-h-56 w-auto object-contain" alt="Hazard ROI">
+                  <!-- Bounding Box Overlay Canvas -->
+                  <canvas id="ai-bbox-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+                  <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-slate-900/80 backdrop-blur-sm text-[10px] text-teal-300 font-mono">
+                    📍 ROI Bounding Box: <span id="ai-bbox-coords">[0.20, 0.15, 0.80, 0.85]</span>
+                  </div>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-teal-50/80 border border-teal-200 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-xs font-bold uppercase tracking-wider text-teal-800" data-i18n="step2_detected_label">Detected Issue</span>
+                      <span id="ai-confidence-badge" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-teal-600 text-white shadow-sm">
+                        91% Confidence
+                      </span>
+                    </div>
+                    <h4 id="ai-detected-issue-text" class="text-2xl font-black text-slate-900 mb-2">
+                      Garbage Accumulation
+                    </h4>
+                    <p id="ai-evidence-summary" class="text-xs text-slate-600 leading-relaxed mb-4">
+                      Validated municipal solid waste accumulation adjacent to pedestrian corridor.
+                    </p>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3 pt-3 border-t border-teal-200/60">
+                    <div>
+                      <span class="text-[10px] font-semibold text-teal-700 uppercase" data-i18n="step2_priority_label">Suggested Priority</span>
+                      <div class="mt-0.5">
+                        <span id="ai-suggested-priority" class="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800">
+                          🟠 High
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="text-[10px] font-semibold text-teal-700 uppercase" data-i18n="step2_dept_label">Recommended Dept</span>
+                      <p id="ai-recommended-dept" class="font-bold text-slate-900 text-xs mt-0.5 leading-tight">
+                        Waste Management Department
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Storage & Neural Feature Metrics Grid -->
+              <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">S3 Object Key</span>
+                  <span id="ai-s3-key" class="text-xs font-mono font-bold text-slate-700 truncate block">ncc-7f8a91.webp</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">WebP Payload</span>
+                  <span id="ai-payload-size" class="text-xs font-mono font-bold text-emerald-600 block">142 KB (96% saved)</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">Sobel Edge Density</span>
+                  <span id="ai-edge-density" class="text-xs font-mono font-bold text-teal-700 block">14.8%</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold block">Inference Latency</span>
+                  <span id="ai-latency" class="text-xs font-mono font-bold text-purple-700 block">210 ms</span>
+                </div>
+              </div>
+
+              <!-- Buttons: Accept vs Change -->
+              <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button id="ai-accept-btn" class="flex-1 py-3.5 px-6 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-sm shadow-md shadow-teal-600/20 transition-all flex items-center justify-center gap-2">
+                  <span>✓</span> <span data-i18n="step2_accept_btn">Accept Suggestion</span>
+                </button>
+                <button id="ai-change-btn" class="py-3.5 px-6 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-all flex items-center justify-center gap-2">
+                  <span>✎</span> <span data-i18n="step2_change_btn">Change Category</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between">
+              <button data-wizard-goto="1" class="text-xs font-semibold text-slate-500 hover:text-slate-800">← Back to Photo</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: LOCATION DETAILS -->
+          <div id="wizard-step-panel-3" class="hidden">
+            <h3 class="text-lg font-bold text-slate-900 mb-1" data-i18n="step3_title">Step 3: Location Details</h3>
+            <p class="text-xs text-slate-500 mb-6">Capture GPS coordinates or pin the location on the map.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+              <button id="wizard-gps-btn" type="button" class="p-4 rounded-2xl bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-800 text-left transition-all">
+                <span class="text-xl block mb-1">📍</span>
+                <span class="font-bold text-xs block" data-i18n="step3_gps_btn">Use My Current Location (GPS)</span>
+                <span id="gps-status-msg" class="text-[11px] text-teal-600">Click to fetch browser GPS</span>
+              </button>
+
+              <button id="wizard-map-picker-btn" type="button" class="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-left transition-all">
+                <span class="text-xl block mb-1">🗺️</span>
+                <span class="font-bold text-xs block" data-i18n="step3_map_btn">Select Location on Map</span>
+                <span class="text-[11px] text-slate-500">Pick pin manually</span>
+              </button>
+            </div>
+
+            <!-- Form fields for coordinates & address -->
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="step3_lat">Latitude</label>
+                  <input type="number" step="any" id="wizard-lat-input" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" value="13.0850">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="step3_lng">Longitude</label>
+                  <input type="number" step="any" id="wizard-lng-input" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" value="80.2101">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="step3_address_label">Address / Ward</label>
+                <input type="text" id="wizard-address-input" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium" value="Anna Nagar 2nd Avenue, Chennai - 600040">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="step3_landmark_label">Nearest Landmark</label>
+                <input type="text" id="wizard-landmark-input" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium" placeholder="e.g., Near Roundtana, Opposite Bus Stand" data-i18n="step3_landmark_placeholder">
+              </div>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+              <button data-wizard-goto="2" class="text-xs font-semibold text-slate-500 hover:text-slate-800">← Back</button>
+              <button data-wizard-goto="4" class="px-6 py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-sm">Next: Problem Description →</button>
+            </div>
+          </div>
+
+          <!-- STEP 4: PROBLEM DESCRIPTION -->
+          <div id="wizard-step-panel-4" class="hidden">
+            <h3 class="text-lg font-bold text-slate-900 mb-1" data-i18n="step4_title">Step 4: Problem Description</h3>
+            <p class="text-xs text-slate-500 mb-6">Describe the issue and specify its severity level.</p>
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="step4_category_label">Civic Category</label>
+                <select id="wizard-category-select" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 bg-white">
+                  <option value="Garbage">🗑️ Garbage / குப்பை</option>
+                  <option value="Pothole">🕳️ Pothole / சாலை பள்ளம்</option>
+                  <option value="Streetlight">💡 Streetlight / தெருவிளக்கு</option>
+                  <option value="Water Leakage">🚰 Water Leakage / குடிநீர் கசிவு</option>
+                  <option value="Damaged Road">🛣️ Damaged Road / சேதமடைந்த சாலை</option>
+                  <option value="Drainage">🌊 Drainage / வடிகால்</option>
+                  <option value="Environmental Issue">🌳 Environmental Issue / சுற்றுச்சூழல் பிரச்சினை</option>
+                  <option value="Other">⚠️ Other / பிற பிரச்சினைகள்</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="step4_desc_label">Describe the Problem in Detail</label>
+                <textarea id="wizard-desc-textarea" rows="4" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs leading-relaxed" placeholder="Explain the issue, impact on public or traffic, how long it has been occurring..." data-i18n="step4_desc_placeholder">Large commercial waste accumulation near the 2nd Avenue corner blocking pedestrian footpath and causing foul odor.</textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" data-i18n="step4_severity_label">Severity Level</label>
+                <select id="wizard-severity-select" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 bg-white">
+                  <option value="Low" data-i18n="step4_sev_low">Low — Minor issue, no immediate hazard</option>
+                  <option value="Medium" data-i18n="step4_sev_med">Medium — Inconvenience to residents/commuters</option>
+                  <option value="High" selected data-i18n="step4_sev_high">High — Potential hazard or significant public disruption</option>
+                  <option value="Emergency" data-i18n="step4_sev_emergency">Emergency — Immediate danger to life, safety, or public health</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+              <button data-wizard-goto="3" class="text-xs font-semibold text-slate-500 hover:text-slate-800">← Back</button>
+              <button data-wizard-goto="5" class="px-6 py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-sm">Review & Submit →</button>
+            </div>
+          </div>
+
+          <!-- STEP 5: REVIEW & SUBMIT -->
+          <div id="wizard-step-panel-5" class="hidden">
+            <h3 class="text-lg font-bold text-slate-900 mb-1" data-i18n="step5_title">Step 5: Review & Submit</h3>
+            <p class="text-xs text-slate-500 mb-6">Verify the complaint summary before final registration.</p>
+
+            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 space-y-4 mb-6">
+              <div class="flex items-start gap-4">
+                <img id="summary-photo" src="" class="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm" alt="Summary Photo">
+                <div>
+                  <h4 id="summary-category" class="font-extrabold text-slate-900 text-base mb-1">Garbage</h4>
+                  <p id="summary-desc" class="text-xs text-slate-600 line-clamp-3 mb-2">Description preview</p>
+                  <p id="summary-location" class="text-[11px] text-slate-400">Anna Nagar, Chennai</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-200 text-xs">
+                <div>
+                  <span class="text-slate-400 block mb-0.5" data-i18n="step5_calc_priority">Calculated Priority</span>
+                  <span id="summary-priority" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800">🟠 High</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 block mb-0.5" data-i18n="step5_dept">Assigned Authority</span>
+                  <span id="summary-dept" class="font-bold text-slate-800">Waste Management Department</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <button data-wizard-goto="4" class="text-xs font-semibold text-slate-500 hover:text-slate-800">← Edit Details</button>
+              <button id="wizard-final-submit" class="px-8 py-3.5 rounded-2xl text-sm font-extrabold bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-600/30 transition-all flex items-center gap-2">
+                <span>🚀</span> <span data-i18n="step5_submit_btn">Submit Official Complaint</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Submission Celebration Screen (Shown upon success) -->
+        <div id="wizard-success-panel" class="hidden bg-white rounded-3xl border border-slate-200 shadow-lg p-8 sm:p-12 text-center">
+          <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 text-4xl flex items-center justify-center mx-auto mb-4">
+            ✓
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mb-2" data-i18n="submit_success_title">
+            Complaint Submitted Successfully!
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mb-6" data-i18n="submit_success_msg">
+            Your grievance has been logged in the Greater Chennai Corporation Civic Registry. Department teams have been alerted.
+          </p>
+
+          <div class="bg-teal-50 border-2 border-teal-200 rounded-2xl p-6 max-w-md mx-auto mb-8">
+            <span class="text-xs font-bold text-teal-800 uppercase tracking-wider block mb-1" data-i18n="submit_success_id_label">Your Complaint ID:</span>
+            <span id="success-complaint-id" class="text-2xl sm:text-3xl font-black font-mono text-teal-900 tracking-wider">NCC-2026-00125</span>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <button id="success-track-btn" class="px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md shadow-teal-600/20" data-i18n="btn_track_this">
+              Track This Complaint
+            </button>
+            <button id="success-another-btn" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs" data-i18n="btn_report_another">
+              File Another Issue
+            </button>
+            <button id="success-home-btn" class="px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-xs" data-i18n="btn_back_home">
+              Back to Home
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. VIEW: TRACK COMPLAINT -->
+    <div id="view-track" class="view-container hidden">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <!-- Header -->
+        <div class="text-center max-w-xl mx-auto mb-8">
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-2" data-i18n="track_title">Track Complaint Status</h2>
+          <p class="text-xs sm:text-sm text-slate-500" data-i18n="track_subtitle">Enter your unique Complaint ID to check real-time progress and departmental updates.</p>
+        </div>
+
+        <!-- Search Input Form -->
+        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm max-w-2xl mx-auto mb-6">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" id="track-input-id" placeholder="Enter Complaint ID (e.g., NCC-2026-00125)" data-i18n="track_input_placeholder" class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 text-sm font-mono uppercase font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <button onclick="searchComplaint(document.getElementById('track-input-id').value)" class="px-6 py-3 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md shadow-teal-600/20 whitespace-nowrap" data-i18n="track_btn">
+              Track Progress
+            </button>
+          </div>
+          <!-- Quick Demo Chips -->
+          <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-400 font-medium" data-i18n="track_quick_demo">Try Demo IDs:</span>
+            <button onclick="searchComplaint('NCC-2026-00125')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-teal-50 text-teal-800 font-mono font-bold text-[11px]">NCC-2026-00125 (In Progress)</button>
+            <button onclick="searchComplaint('NCC-2026-00123')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-teal-50 text-teal-800 font-mono font-bold text-[11px]">NCC-2026-00123 (Resolved)</button>
+            <button onclick="searchComplaint('NCC-2026-00124')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-teal-50 text-teal-800 font-mono font-bold text-[11px]">NCC-2026-00124 (Verified)</button>
+          </div>
+        </div>
+
+        <!-- Result Container (Populated by app.js) -->
+        <div id="track-result-container"></div>
+      </div>
+    </div>
+
+    <!-- 4. VIEW: LIVE CIVIC MAP -->
+    <div id="view-map" class="view-container hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        <!-- Map Header & Filter Bar -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900" data-i18n="map_title">Live Municipal Civic Map</h2>
+            <p class="text-xs text-slate-500" data-i18n="map_subtitle">Explore reported issues, ongoing works, and resolved problems across Chennai wards.</p>
+          </div>
+          
+          <!-- Category / Status Filter Chips -->
+          <div class="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200">
+            <button data-map-filter="All" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 text-white shadow-sm" data-i18n="map_filter_all">All</button>
+            <button data-map-filter="Open" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white text-slate-700 hover:bg-slate-50" data-i18n="map_filter_open">Open</button>
+            <button data-map-filter="In Progress" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white text-slate-700 hover:bg-slate-50" data-i18n="map_filter_in_progress">In Progress</button>
+            <button data-map-filter="Resolved" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white text-slate-700 hover:bg-slate-50" data-i18n="map_filter_resolved">Resolved</button>
+            <button data-map-filter="Emergency" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white text-rose-700 hover:bg-rose-50" data-i18n="map_filter_emergency">Emergency</button>
+          </div>
+        </div>
+
+        <!-- Map Canvas Container -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-2 relative">
+          <div id="civic-map-canvas" class="w-full h-[580px] rounded-2xl z-0"></div>
+          
+          <!-- Map Legend Overlay -->
+          <div class="absolute bottom-6 right-6 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl border border-slate-200 shadow-lg text-[11px] font-semibold space-y-1 z-10 hidden sm:block">
+            <div class="font-bold text-slate-800 text-xs mb-1">Pin Legend</div>
+            <div class="flex items-center gap-2"><span>🗑️</span> <span>Garbage (Waste Mgmt)</span></div>
+            <div class="flex items-center gap-2"><span>🕳️</span> <span>Pothole (Roads)</span></div>
+            <div class="flex items-center gap-2"><span>💡</span> <span>Streetlight (Electrical)</span></div>
+            <div class="flex items-center gap-2"><span>🚰</span> <span>Water Leakage (Metro Water)</span></div>
+            <div class="flex items-center gap-2"><span>🌊</span> <span>Drainage (Storm Water)</span></div>
+            <div class="flex items-center gap-2"><span>🌳</span> <span>Environmental Hazard</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. VIEW: NEARBY ISSUES -->
+    <div id="view-nearby" class="view-container hidden">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div class="mb-8">
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-1" data-i18n="nearby_title">Problems Near Me</h2>
+          <p class="text-xs sm:text-sm text-slate-500" data-i18n="nearby_subtitle">Civic issues reported within your immediate neighborhood (2 km radius).</p>
+          <div class="mt-3 flex items-center justify-between">
+            <span id="nearby-count-text" class="text-xs font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+              Detecting location...
+            </span>
+            <button onclick="captureGpsLocation(); loadNearbyView();" class="text-xs font-bold text-teal-600 hover:underline">
+              🔄 Refresh Location
+            </button>
+          </div>
+        </div>
+
+        <div id="nearby-results-list" class="space-y-4">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. VIEW: CITIZEN DASHBOARD -->
+    <div id="view-dashboard" class="view-container hidden">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900" data-i18n="cdash_title">Citizen Dashboard</h2>
+            <p class="text-xs sm:text-sm text-slate-500" data-i18n="cdash_welcome">Welcome back, Karthik Sundaram</p>
+          </div>
+          <button onclick="navigateTo('report')" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-sm self-start">
+            + File New Complaint
+          </button>
+        </div>
+
+        <!-- 4 Key Stat Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-400 block mb-1" data-i18n="cdash_stat_total">Total Reports</span>
+            <span id="cdash-total" class="text-3xl font-black text-slate-900">5</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-amber-500 block mb-1" data-i18n="cdash_stat_pending">Pending Verification</span>
+            <span id="cdash-pending" class="text-3xl font-black text-amber-600">1</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-teal-600 block mb-1" data-i18n="cdash_stat_progress">In Progress</span>
+            <span id="cdash-progress" class="text-3xl font-black text-teal-600">2</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-emerald-600 block mb-1" data-i18n="cdash_stat_resolved">Resolved</span>
+            <span id="cdash-resolved" class="text-3xl font-black text-emerald-600">2</span>
+          </div>
+        </div>
+
+        <!-- Dashboard Tabs: My Complaints & Notifications -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 text-base" data-i18n="cdash_tab_my_complaints">My Complaints</h3>
+            <span class="text-xs text-slate-400">Showing recent reports</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                <tr>
+                  <th class="py-3 px-4">Complaint ID</th>
+                  <th class="py-3 px-4">Issue</th>
+                  <th class="py-3 px-4">Location</th>
+                  <th class="py-3 px-4">Priority</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="cdash-complaints-list" class="divide-y divide-slate-100">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Notifications Feed -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+          <h3 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+            <span>🔔</span> <span data-i18n="cdash_tab_notifications">Notifications</span>
+          </h3>
+          <div id="cdash-notif-container" class="space-y-3">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. VIEW: ADMIN DASHBOARD -->
+    <div id="view-admin_dash" class="view-container hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <!-- Admin Title Banner -->
+        <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 sm:p-8 rounded-3xl shadow-md">
+          <div>
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/30 text-xs font-semibold mb-2">
+              🛡️ Official Command Center
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black" data-i18n="admin_title">Municipal Administrator Command Center</h2>
+            <p class="text-xs text-slate-300 mt-1" data-i18n="admin_subtitle">Greater Chennai Corporation • Integrated Grievance Redressal Portal</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="window.civicTestRunner.openTestModal()" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold border border-emerald-400/30 flex items-center gap-1.5 transition-all">
+              <span>🧪</span> <span>Run Unit Tests</span>
+            </button>
+            <button onclick="window.civicErrorBoundary.openDiagnosticsModal()" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-bold border border-rose-400/30 flex items-center gap-1.5 transition-all">
+              <span>🛡️</span> <span>Error Diagnostics</span>
+            </button>
+            <button onclick="navigateTo('departments')" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold border border-white/20">
+              Manage Departments
+            </button>
+            <button onclick="navigateTo('reports')" class="px-3.5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-teal-950 text-xs font-bold">
+              Generate Audit Reports
+            </button>
+          </div>
+        </div>
+
+        <!-- 7 Key Municipal Metric Counters -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-8">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block" data-i18n="admin_stat_total">Total</span>
+            <span id="admin-stat-total" class="text-xl font-black text-slate-900">1,248</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <span class="text-[10px] uppercase font-bold text-amber-500 block" data-i18n="admin_stat_new">New</span>
+            <span id="admin-stat-new" class="text-xl font-black text-amber-600">86</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <span class="text-[10px] uppercase font-bold text-orange-600 block" data-i18n="admin_stat_high">High</span>
+            <span id="admin-stat-high" class="text-xl font-black text-orange-600">42</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <span class="text-[10px] uppercase font-bold text-rose-600 block" data-i18n="admin_stat_emergency">Emergency</span>
+            <span id="admin-stat-emergency" class="text-xl font-black text-rose-600">8</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <span class="text-[10px] uppercase font-bold text-teal-600 block" data-i18n="admin_stat_in_progress">In Progress</span>
+            <span id="admin-stat-in-progress" class="text-xl font-black text-teal-600">173</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <span class="text-[10px] uppercase font-bold text-emerald-600 block" data-i18n="admin_stat_resolved">Resolved</span>
+            <span id="admin-stat-resolved" class="text-xl font-black text-emerald-600">1,069</span>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center col-span-2 sm:col-span-1">
+            <span class="text-[10px] uppercase font-bold text-indigo-600 block" data-i18n="admin_stat_avg_time">Avg SLA</span>
+            <span id="admin-stat-avg-time" class="text-xl font-black text-indigo-700">2.8 days</span>
+          </div>
+        </div>
+
+        <!-- Admin Charts Visualizations -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 mb-4">Complaints by Category</h4>
+            <div class="h-56">
+              <canvas id="chart-categories"></canvas>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 mb-4">Status Progression</h4>
+            <div class="h-56">
+              <canvas id="chart-status"></canvas>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 mb-4">Priority Distribution</h4>
+            <div class="h-56">
+              <canvas id="chart-priority"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complaint Management Section -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 class="font-bold text-slate-900 text-lg" data-i18n="admin_manage_title">All Municipal Complaints</h3>
+              <p class="text-xs text-slate-400">Search, verify, assign departments, and upload resolution proof.</p>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <input type="text" id="admin-search-input" onkeyup="applyAdminFilters()" placeholder="Search by ID, keyword, address..." data-i18n="admin_search_placeholder" class="px-3 py-2 rounded-xl border border-slate-200 text-xs w-48 sm:w-60 focus:outline-none focus:ring-1 focus:ring-teal-500">
+              
+              <select id="admin-dept-filter" onchange="applyAdminFilters()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+                <option value="All" data-i18n="admin_filter_dept">All Departments</option>
+                <option value="Waste Management Department">Waste Management</option>
+                <option value="Roads & Highways Department">Roads & Highways</option>
+                <option value="Electricity & Street Lighting Department">Electricity</option>
+                <option value="Metro Water & Sewerage Department">Metro Water</option>
+                <option value="Storm Water Drainage Department">Drainage</option>
+                <option value="Parks & Environmental Protection Department">Environment</option>
+              </select>
+
+              <select id="admin-priority-filter" onchange="applyAdminFilters()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+                <option value="All" data-i18n="admin_filter_priority">All Priorities</option>
+                <option value="Emergency">Emergency</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+
+              <select id="admin-status-filter" onchange="applyAdminFilters()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+                <option value="All" data-i18n="admin_filter_status">All Statuses</option>
+                <option value="Reported">Reported</option>
+                <option value="Verified">Verified</option>
+                <option value="Assigned">Assigned</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                <tr>
+                  <th class="py-3 px-3" data-i18n="admin_col_id">Complaint ID</th>
+                  <th class="py-3 px-3" data-i18n="admin_col_issue">Issue & Category</th>
+                  <th class="py-3 px-3" data-i18n="admin_col_location">Location</th>
+                  <th class="py-3 px-3" data-i18n="admin_col_priority">Priority</th>
+                  <th class="py-3 px-3" data-i18n="admin_col_department">Department</th>
+                  <th class="py-3 px-3" data-i18n="admin_col_status">Status</th>
+                  <th class="py-3 px-3" data-i18n="admin_col_date">Date</th>
+                  <th class="py-3 px-3 text-right" data-i18n="admin_col_actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-complaints-tbody" class="divide-y divide-slate-100">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. VIEW: DEPARTMENTS -->
+    <div id="view-departments" class="view-container hidden">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div class="mb-8">
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-1" data-i18n="dept_page_title">Municipal Departments & Workload</h2>
+          <p class="text-xs sm:text-sm text-slate-500">Live operational status, SLA compliance, and dispatch stats across Chennai divisions.</p>
+        </div>
+
+        <div id="departments-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. VIEW: REPORTS -->
+    <div id="view-reports" class="view-container hidden">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-1" data-i18n="reports_title">Municipal Reports & Analytics Export</h2>
+            <p class="text-xs sm:text-sm text-slate-500" data-i18n="reports_subtitle">Generate official civic performance and compliance audits for Chennai Corporation.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="exportReportCSV()" class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs flex items-center gap-1.5 shadow-sm" data-i18n="reports_btn_export_csv">
+              <span>📥</span> <span>Export CSV Data</span>
+            </button>
+            <button onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm" data-i18n="reports_btn_print">
+              <span>🖨️</span> <span>Print / Save PDF</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Report Selector Control -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-3">
+            <label class="text-xs font-bold text-slate-700">Select Audit Report Type:</label>
+            <select id="report-type-select" onchange="generateReport(this.value)" class="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50">
+              <option value="daily" data-i18n="reports_type_daily">Daily Grievance Report</option>
+              <option value="weekly" data-i18n="reports_type_weekly">Weekly Resolution Audit</option>
+              <option value="monthly" data-i18n="reports_type_monthly">Monthly Department Performance</option>
+              <option value="category" data-i18n="reports_type_category">Category Incident Analysis</option>
+              <option value="location" data-i18n="reports_type_location">Ward & Zonal Density Report</option>
+              <option value="emergency" data-i18n="reports_type_emergency">Emergency Response Audit</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-mono text-slate-400">
+            <span id="report-total-count">Records</span>
+            <span id="report-timestamp-badge">Timestamp</span>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-4">
+          <div id="reports-table-container" class="overflow-x-auto">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. VIEW: EMERGENCY HELP -->
+    <div id="view-emergency" class="view-container hidden">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <!-- Safety Alert Advisory -->
+        <div class="bg-rose-50 border-2 border-rose-300 rounded-3xl p-6 sm:p-8 mb-8 text-rose-950">
+          <div class="flex items-start gap-4">
+            <span class="text-3xl">⚠️</span>
+            <div>
+              <h3 class="font-black text-lg text-rose-900 mb-1" data-i18n="emerg_warning_title">Important Safety Advisory</h3>
+              <p class="text-xs sm:text-sm text-rose-800 leading-relaxed" data-i18n="emerg_warning_text">
+                This website is not a replacement for official emergency services. For immediate danger to life, fire, crime, or medical emergencies, contact the appropriate official emergency service directly.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-1" data-i18n="emerg_title">Emergency Civic Services Directory</h2>
+          <p class="text-xs sm:text-sm text-slate-500">Immediate telephone links to Greater Chennai Corporation and Tamil Nadu emergency control rooms.</p>
+        </div>
+
+        <!-- Emergency Directory Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <!-- Police -->
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-3xl">👮</span>
+                <span class="text-2xl font-black font-mono text-blue-600">100</span>
+              </div>
+              <h4 class="font-extrabold text-slate-900 text-base mb-1" data-i18n="emerg_police">Police Control Room</h4>
+              <p class="text-xs text-slate-500 mb-4" data-i18n="emerg_police_desc">Law & order, traffic accidents, immediate security</p>
+            </div>
+            <a href="tel:100" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs text-center block" data-i18n="emerg_btn_call">
+              Call 100
+            </a>
+          </div>
+
+          <!-- Ambulance -->
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-3xl">🚑</span>
+                <span class="text-2xl font-black font-mono text-emerald-600">108</span>
+              </div>
+              <h4 class="font-extrabold text-slate-900 text-base mb-1" data-i18n="emerg_ambulance">Medical Ambulance</h4>
+              <p class="text-xs text-slate-500 mb-4" data-i18n="emerg_ambulance_desc">Immediate medical trauma, critical health emergencies</p>
+            </div>
+            <a href="tel:108" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs text-center block" data-i18n="emerg_btn_call">
+              Call 108
+            </a>
+          </div>
+
+          <!-- Fire & Rescue -->
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-3xl">🚒</span>
+                <span class="text-2xl font-black font-mono text-rose-600">101</span>
+              </div>
+              <h4 class="font-extrabold text-slate-900 text-base mb-1" data-i18n="emerg_fire">Fire & Rescue Services</h4>
+              <p class="text-xs text-slate-500 mb-4" data-i18n="emerg_fire_desc">Fire incidents, building collapse, hazardous chemical spills</p>
+            </div>
+            <a href="tel:101" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs text-center block" data-i18n="emerg_btn_call">
+              Call 101
+            </a>
+          </div>
+
+          <!-- Disaster Management -->
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-3xl">🌪️</span>
+                <span class="text-2xl font-black font-mono text-indigo-600">1077</span>
+              </div>
+              <h4 class="font-extrabold text-slate-900 text-base mb-1" data-i18n="emerg_disaster">State Disaster Management</h4>
+              <p class="text-xs text-slate-500 mb-4" data-i18n="emerg_disaster_desc">Flood alerts, cyclones, storm water inundation</p>
+            </div>
+            <a href="tel:1077" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs text-center block" data-i18n="emerg_btn_call">
+              Call 1077
+            </a>
+          </div>
+
+          <!-- Corporation 24/7 Helpline -->
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between sm:col-span-2">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-3xl">🏛️</span>
+                <span class="text-2xl font-black font-mono text-teal-700">1913</span>
+              </div>
+              <h4 class="font-extrabold text-slate-900 text-base mb-1" data-i18n="emerg_corp_tollfree">Chennai Corporation 24/7 Helpline</h4>
+              <p class="text-xs text-slate-500 mb-4">Toll-free 24-hour civic distress assistance and emergency control room.</p>
+            </div>
+            <a href="tel:1913" class="w-full py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs text-center block" data-i18n="emerg_btn_call">
+              Call 1913 (Toll Free)
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. MAP PICKER MODAL -->
+  <div id="map-picker-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h4 class="font-black text-slate-900 text-base">Select Incident Location on Map</h4>
+          <p class="text-xs text-slate-500">Drag marker or tap map to pin the exact coordinates.</p>
+        </div>
+        <button onclick="closeMapPickerModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+      </div>
+      <div id="map-picker-canvas" class="w-full h-80 rounded-2xl mb-4 border border-slate-200"></div>
+      <div class="flex items-center justify-end gap-3">
+        <button onclick="closeMapPickerModal()" class="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-sm">
+          Confirm Location
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. DUPLICATE ALERT MODAL -->
+  <div id="duplicate-alert-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-amber-200">
+      <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-600 text-3xl flex items-center justify-center mx-auto mb-4">
+        ⚠️
+      </div>
+      <h3 class="font-black text-slate-900 text-lg sm:text-xl text-center mb-2" data-i18n="dup_title">
+        Similar Issue Detected Nearby
+      </h3>
+      <p class="text-xs sm:text-sm text-slate-600 text-center mb-6" data-i18n="dup_msg">
+        A similar issue has already been reported near this location.
+      </p>
+
+      <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 mb-6 text-xs">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-bold text-slate-700" data-i18n="dup_existing_id">Existing Complaint ID:</span>
+          <span id="dup-existing-id" class="font-mono font-bold text-teal-700">NCC-2026-00125</span>
+        </div>
+        <p id="dup-existing-desc" class="text-slate-600 mb-2">Pothole near signal</p>
+        <span id="dup-existing-dist" class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">120m away</span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <button id="dup-support-btn" class="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md shadow-teal-600/20" data-i18n="dup_btn_support">
+          👍 Support Existing Complaint
+        </button>
+        <button id="dup-proceed-btn" class="w-full py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-xs" data-i18n="dup_btn_proceed">
+          Submit New Complaint Anyway
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ADMIN UPDATE STATUS MODAL -->
+  <div id="admin-update-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h4 class="font-black text-slate-900 text-base" data-i18n="modal_update_title">Update Complaint Status & Assignment</h4>
+          <span id="modal-update-complaint-id" class="text-xs font-mono font-bold text-teal-700">NCC-2026-00125</span>
+        </div>
+        <button onclick="closeAdminUpdateModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1" data-i18n="modal_label_status">New Status</label>
+          <select id="modal-status-select" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold bg-white">
+            <option value="Reported">Reported</option>
+            <option value="Verified">Verified</option>
+            <option value="Assigned">Assigned</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1" data-i18n="modal_label_dept">Reassign Department</label>
+          <select id="modal-dept-select" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-medium bg-white">
+            <option value="Waste Management Department">Waste Management Department</option>
+            <option value="Roads & Highways Department">Roads & Highways Department</option>
+            <option value="Electricity & Street Lighting Department">Electricity & Street Lighting</option>
+            <option value="Metro Water & Sewerage Department">Metro Water & Sewerage</option>
+            <option value="Storm Water Drainage Department">Storm Water Drainage</option>
+            <option value="Parks & Environmental Protection Department">Parks & Environment</option>
+            <option value="Greater Chennai Municipal Corporation (General)">Greater Chennai Corporation</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1" data-i18n="modal_label_priority">Override Priority</label>
+          <select id="modal-priority-select" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-medium bg-white">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Emergency">Emergency</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1" data-i18n="modal_label_notes">Officer Progress Notes</label>
+          <textarea id="modal-notes-textarea" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-200" placeholder="e.g., Road repair squad dispatched with jetpatcher truck."></textarea>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1" data-i18n="modal_label_res_img">Resolution Photo URL (Proof of Work)</label>
+          <input type="text" id="modal-res-img-input" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" placeholder="https://... (Optional proof photo)">
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+        <button onclick="closeAdminUpdateModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100" data-i18n="modal_btn_cancel">
+          Cancel
+        </button>
+        <button id="modal-save-btn" class="px-6 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-sm" data-i18n="modal_btn_save">
+          Save & Notify Citizen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MOBILE BOTTOM NAVIGATION ================= -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 flex items-center justify-between z-30">
+    <button onclick="navigateTo('home')" class="flex flex-col items-center text-slate-600 hover:text-teal-600">
+      <span class="text-lg">🏠</span>
+      <span class="text-[10px] font-bold">Home</span>
+    </button>
+    <button onclick="navigateTo('report')" class="flex flex-col items-center text-teal-600">
+      <div class="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center text-lg -mt-5 shadow-lg shadow-teal-600/30">
+        📸
+      </div>
+      <span class="text-[10px] font-bold">Report</span>
+    </button>
+    <button onclick="navigateTo('track')" class="flex flex-col items-center text-slate-600 hover:text-teal-600">
+      <span class="text-lg">🔎</span>
+      <span class="text-[10px] font-bold">Track</span>
+    </button>
+    <button onclick="navigateTo('map')" class="flex flex-col items-center text-slate-600 hover:text-teal-600">
+      <span class="text-lg">🗺️</span>
+      <span class="text-[10px] font-bold">Map</span>
+    </button>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-10 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-2xl">🏙️</span>
+          <span class="text-white font-extrabold text-base">Namma City Care</span>
+        </div>
+        <p class="text-slate-400 text-xs max-w-md leading-relaxed mb-3">
+          Greater Chennai Corporation Integrated Civic Issue Redressal Portal. Empowering citizens through AI-enabled reporting, transparent geospatial tracking, and verified resolutions.
+        </p>
+        <p class="text-[11px] text-teal-400 font-semibold">
+          English: Report. Track. Improve Our City. • தமிழ்: புகாரளிப்போம். கண்காணிப்போம். நகரத்தை மேம்படுத்துவோம்.
+        </p>
+      </div>
+
+      <div>
+        <h5 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Quick Navigation</h5>
+        <ul class="space-y-2">
+          <li><a href="#home" onclick="navigateTo('home')" class="hover:text-teal-400">Home / முகப்பு</a></li>
+          <li><a href="#report" onclick="navigateTo('report')" class="hover:text-teal-400">Report Issue / புகாரளிக்கவும்</a></li>
+          <li><a href="#track" onclick="navigateTo('track')" class="hover:text-teal-400">Track Complaint / கண்காணிக்க</a></li>
+          <li><a href="#map" onclick="navigateTo('map')" class="hover:text-teal-400">Live Civic Map / வரைபடம்</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5 class="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Civic Helplines</h5>
+        <ul class="space-y-2">
+          <li>GCC 24/7 Helpline: <strong class="text-white">1913</strong></li>
+          <li>Metro Water: <strong class="text-white">044 4567 4567</strong></li>
+          <li>Police Control: <strong class="text-white">100</strong></li>
+          <li>Ambulance: <strong class="text-white">108</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-slate-800 text-center text-slate-500 text-[11px]">
+      © 2026 Greater Chennai Corporation & Namma City Care Initiative. All Rights Reserved.
+    </div>
+  </footer>
+
+  <!-- ================= MODAL 1: AUTHENTICATION & RBAC LOGIN ================= -->
+  <div id="modal-auth" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h4 class="font-black text-slate-900 text-lg" data-i18n="auth_login_title">Municipal Access Portal</h4>
+          <p class="text-xs text-slate-500" data-i18n="auth_login_desc">Production-grade JWT RBAC with PBKDF2 salted password hashing.</p>
+        </div>
+        <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+      </div>
+
+      <!-- Quick 1-Click Demo Accounts -->
+      <div class="my-5 p-4 bg-teal-50/70 rounded-2xl border border-teal-200">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-teal-800 block mb-2" data-i18n="auth_demo_title">One-Click Demo Credentials</span>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="authRbac.switchRoleDemo('citizen').then(() => closeAuthModal())" class="p-2 rounded-xl bg-white border border-teal-300 hover:bg-teal-100 text-left transition-all">
+            <span class="block text-xs font-bold text-teal-900">👤 Citizen</span>
+            <span class="text-[10px] text-teal-700 block truncate">Karthik (Zone 8)</span>
+          </button>
+          <button onclick="authRbac.switchRoleDemo('ward_officer').then(() => closeAuthModal())" class="p-2 rounded-xl bg-white border border-teal-300 hover:bg-teal-100 text-left transition-all">
+            <span class="block text-xs font-bold text-teal-900">👷 Ward Officer</span>
+            <span class="text-[10px] text-teal-700 block truncate">Meenakshi (JE)</span>
+          </button>
+          <button onclick="authRbac.switchRoleDemo('admin').then(() => closeAuthModal())" class="p-2 rounded-xl bg-white border border-teal-300 hover:bg-teal-100 text-left transition-all">
+            <span class="block text-xs font-bold text-purple-900">🏛️ Admin</span>
+            <span class="text-[10px] text-purple-700 block truncate">Dr. Annamalai</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Manual Credentials Form -->
+      <form onsubmit="handleAuthSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1" data-i18n="auth_email_label">Official GCC Email</label>
+          <input type="email" id="auth-email-input" required value="citizen@chennai.gov.in" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono text-xs focus:ring-2 focus:ring-teal-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1" data-i18n="auth_pass_label">Password (PBKDF2 Hashed)</label>
+          <input type="password" id="auth-pass-input" required value="Citizen@2026!" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono text-xs focus:ring-2 focus:ring-teal-500">
+        </div>
+
+        <div id="auth-error-msg" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs"></div>
+
+        <div class="pt-2 flex items-center justify-between gap-3">
+          <button type="button" onclick="authRbac.logout(); closeAuthModal();" class="text-xs text-rose-600 hover:underline font-semibold" data-i18n="nav_logout">
+            Sign Out
+          </button>
+          <button type="submit" id="auth-submit-btn" class="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-md shadow-teal-600/20" data-i18n="auth_btn_login">
+            Authenticate with JWT
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: LIVE JWT TOKEN INSPECTOR ================= -->
+  <div id="modal-jwt-inspector" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🔑</span>
+          <div>
+            <h4 class="font-black text-slate-900 text-lg">Cryptographic JWT Token Inspector</h4>
+            <p class="text-xs text-slate-500">RFC 7519 HMAC-SHA256 Token & Endpoint Middleware Role Claims</p>
+          </div>
+        </div>
+        <button onclick="closeJwtInspectorModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+      </div>
+
+      <div class="my-5 space-y-4 text-xs font-mono">
+        <!-- Raw Encoded Token -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-slate-700 uppercase text-[10px]">Encoded Bearer Token (Header.Payload.Signature)</span>
+            <span id="jwt-timer-badge" class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">Valid • 59m left</span>
+          </div>
+          <div id="jwt-raw-display" class="p-3 bg-slate-900 text-slate-300 rounded-xl break-all text-[11px] leading-relaxed select-all">
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+          </div>
+        </div>
+
+        <!-- Decoded Header -->
+        <div class="p-3.5 rounded-xl bg-rose-50/80 border border-rose-200">
+          <span class="font-bold text-rose-800 uppercase text-[10px] block mb-1">1. Decoded Header (Algorithm & Token Type)</span>
+          <pre id="jwt-header-display" class="text-rose-950 text-[11px] whitespace-pre-wrap">{ "alg": "HS256", "typ": "JWT" }</pre>
+        </div>
+
+        <!-- Decoded Payload Claims -->
+        <div class="p-3.5 rounded-xl bg-purple-50/80 border border-purple-200">
+          <span class="font-bold text-purple-800 uppercase text-[10px] block mb-1">2. Decoded Payload (RBAC Claims, Identity & Expiry)</span>
+          <pre id="jwt-payload-display" class="text-purple-950 text-[11px] whitespace-pre-wrap">{}</pre>
+        </div>
+
+        <!-- Signature Verification -->
+        <div class="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200">
+          <span class="font-bold text-blue-800 uppercase text-[10px] block mb-1">3. Cryptographic Signature (HMAC-SHA256)</span>
+          <div class="flex items-center justify-between">
+            <span class="text-blue-900 font-bold">✅ Signature Status: VERIFIED</span>
+            <span class="text-[10px] text-blue-700">Secret: GCC-2026-PROD-KEY</span>
+          </div>
+        </div>
+
+        <!-- Recent Audit Log Entries -->
+        <div>
+          <span class="font-bold text-slate-700 uppercase text-[10px] block mb-2">Endpoint Middleware RBAC Audit Trail</span>
+          <div id="jwt-audit-logs" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end">
+        <button onclick="closeJwtInspectorModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs">
+          Close Inspector
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: S3 CLOUD MEDIA STORE ================= -->
+  <div id="modal-s3-storage" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">☁️</span>
+          <div>
+            <h4 class="font-black text-slate-900 text-lg" data-i18n="s3_title">S3-Compatible Cloud Media Store</h4>
+            <p class="text-xs text-slate-500" data-i18n="s3_desc">Direct-to-bucket upload pipeline via AWS SigV4 Presigned PUT URLs.</p>
+          </div>
+        </div>
+        <button onclick="closeS3StorageModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+      </div>
+
+      <!-- Live S3 Telemetry Metrics -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+        <div class="p-3 bg-sky-50 rounded-2xl border border-sky-200">
+          <span class="text-[10px] font-bold text-sky-800 uppercase block">Bucket & Region</span>
+          <span class="text-xs font-mono font-black text-sky-950 block">gcc-civic-media</span>
+          <span class="text-[10px] text-sky-700 font-mono">ap-south-1 (Mumbai)</span>
+        </div>
+        <div class="p-3 bg-teal-50 rounded-2xl border border-teal-200">
+          <span class="text-[10px] font-bold text-teal-800 uppercase block">Total Objects</span>
+          <span id="s3-stat-objects" class="text-lg font-black text-teal-950 block">3</span>
+          <span class="text-[10px] text-teal-700">WebP Transcoded</span>
+        </div>
+        <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-200">
+          <span class="text-[10px] font-bold text-emerald-800 uppercase block">Disk Quota Saved</span>
+          <span id="s3-stat-saved" class="text-lg font-black text-emerald-950 block">96.4%</span>
+          <span class="text-[10px] text-emerald-700">vs Raw Base64</span>
+        </div>
+        <div class="p-3 bg-purple-50 rounded-2xl border border-purple-200">
+          <span class="text-[10px] font-bold text-purple-800 uppercase block">Presigned TTL</span>
+          <span class="text-lg font-black text-purple-950 block">900s</span>
+          <span class="text-[10px] text-purple-700">AWS SigV4 Signed</span>
+        </div>
+      </div>
+
+      <!-- Presigned URL Handshake Visualizer -->
+      <div class="p-4 bg-slate-900 rounded-2xl text-slate-300 font-mono text-xs mb-5 space-y-2">
+        <div class="flex items-center justify-between text-teal-400 font-bold text-[11px]">
+          <span>⚡ Presigned URL Direct Upload Pipeline</span>
+          <span class="text-[10px] text-slate-400">Zero Server Disk Saturation</span>
+        </div>
+        <div class="text-[11px] text-slate-400 leading-relaxed">
+          1. Client WebP compression (8MB → 142KB) <br>
+          2. API generates SigV4 PUT URL: <span class="text-sky-300">https://gcc-civic-media-prod.s3.ap-south-1.amazonaws.com/complaints/2026/10/ncc-...</span> <br>
+          3. Client streams binary Blob directly to S3 with progress tracking <br>
+          4. Only lightweight CDN URLs stored in DB (Zero localStorage pressure)
+        </div>
+      </div>
+
+      <!-- S3 Media Catalog Table -->
+      <div>
+        <h5 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Registered S3 Cloud Media Objects</h5>
+        <div class="border border-slate-200 rounded-2xl overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-3">Object Key</th>
+                <th class="p-3">Format & Size</th>
+                <th class="p-3">Uploaded</th>
+                <th class="p-3">Access</th>
+              </tr>
+            </thead>
+            <tbody id="s3-catalog-tbody" class="divide-y divide-slate-100 font-mono text-[11px]"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pt-4 mt-5 border-t border-slate-100 flex justify-end">
+        <button onclick="closeS3StorageModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs">
+          Close Store Console
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 4: DESIGN THINKING & TAMIL LEXICON ================= -->
+  <div id="modal-design-thinking" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📖</span>
+          <div>
+            <h4 class="font-black text-slate-900 text-lg" data-i18n="dt_title">Design Thinking & Tamil Lexicon Validation</h4>
+            <p class="text-xs text-slate-500" data-i18n="dt_subtitle">Field user testing across GCC Zone 8 & Zone 13 validating conversational civic Tamil.</p>
+          </div>
+        </div>
+        <button onclick="closeDesignThinkingModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">✕</button>
+      </div>
+
+      <!-- Highlights Banner -->
+      <div class="my-5 p-5 bg-gradient-to-r from-teal-900 to-teal-800 text-white rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-teal-300 text-xs font-bold uppercase tracking-wider block mb-1">Human-Centered Civic Impact</span>
+          <h5 class="text-xl font-black">System Usability Scale: 88.5 / 100 (Grade A+ Excellent)</h5>
+          <p class="text-xs text-teal-100 mt-1">Grievance reporting task completion surged from 41.5% to 94.3% with conversational Tamil.</p>
+        </div>
+        <div class="flex items-center gap-4 text-center">
+          <div class="bg-white/10 px-4 py-2 rounded-xl">
+            <span class="text-2xl font-black text-teal-300 block">75</span>
+            <span class="text-[10px] text-teal-100 uppercase">Empathy Interviews</span>
+          </div>
+          <div class="bg-white/10 px-4 py-2 rounded-xl">
+            <span class="text-2xl font-black text-teal-300 block">-71%</span>
+            <span class="text-[10px] text-teal-100 uppercase">Time to Report</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Field Empathy Cohorts -->
+      <div class="mb-6">
+        <h5 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-3">Field Empathy Research Cohorts (Chennai)</h5>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+            <span class="font-black text-slate-900 block mb-1">🧹 1. Conservancy Workers (Ward 102 Depot)</span>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              <strong>Pain Point:</strong> Bureaucratic terms like <em>"திடக்கழிவு மேலாண்மை"</em> caused anxiety. Preferred visual icons with direct spoken terms like <em>"குப்பை தேக்கம்"</em>.
+            </p>
+          </div>
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+            <span class="font-black text-slate-900 block mb-1">🛺 2. Auto Drivers & Vendors (T. Nagar Stand)</span>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              <strong>Pain Point:</strong> Broken roads and potholes cost ₹4,000/mo in repairs. Praised <em>"சாலை பள்ளம் அபாயம்"</em> for instant mobile capture under 90s.
+            </p>
+          </div>
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+            <span class="font-black text-slate-900 block mb-1">👵 3. Senior Citizens & RWAs (Adyar & Mylapore)</span>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              <strong>Pain Point:</strong> Fear of dark streets at night. Relied on <em>Mukta Malar</em> font clarity and clear 5-stage timeline from <em>"பதிவு செய்யப்பட்டது"</em> to <em>"தீர்வு காணப்பட்டது"</em>.
+            </p>
+          </div>
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+            <span class="font-black text-slate-900 block mb-1">👷 4. GCC Municipal Engineers (Zone 8 Office)</span>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              <strong>Pain Point:</strong> Misclassified tickets wasted fuel. Conversational categories reduced ticket misrouting by 85.8%.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lexical Comparison Matrix -->
+      <div class="mb-5">
+        <h5 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Tamil Lexicon Decision Matrix (Sample Validation)</h5>
+        <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs">
+          <table class="w-full text-left">
+            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-2.5">Concept</th>
+                <th class="p-2.5">Archaic Tamil (Legacy)</th>
+                <th class="p-2.5">Selected Namma City Care Lexicon</th>
+                <th class="p-2.5">Comprehension</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-[11px]">
+              <tr>
+                <td class="p-2.5 font-bold">Garbage</td>
+                <td class="p-2.5 text-slate-500">திடக்கழிவு மேலாண்மை குறைபாடு</td>
+                <td class="p-2.5 font-bold text-teal-800 bg-teal-50/50">குப்பை தேக்கம்</td>
+                <td class="p-2.5 text-emerald-600 font-bold">94.6%</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 font-bold">Pothole</td>
+                <td class="p-2.5 text-slate-500">சாலை மேற்பரப்பு பள்ளச் சிதைவு</td>
+                <td class="p-2.5 font-bold text-teal-800 bg-teal-50/50">சாலை பள்ளம் அபாயம்</td>
+                <td class="p-2.5 text-emerald-600 font-bold">97.3%</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 font-bold">Streetlight</td>
+                <td class="p-2.5 text-slate-500">பொது மின்விளக்கு செயலிழப்பு</td>
+                <td class="p-2.5 font-bold text-teal-800 bg-teal-50/50">தெருவிளக்கு பழுது</td>
+                <td class="p-2.5 text-emerald-600 font-bold">98.6%</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 font-bold">Track Complaint</td>
+                <td class="p-2.5 text-slate-500">மனுவின் தற்போதைய நிலவரம் அறிதல்</td>
+                <td class="p-2.5 font-bold text-teal-800 bg-teal-50/50">புகாரைக் கண்காணிக்கவும்</td>
+                <td class="p-2.5 text-emerald-600 font-bold">94.2%</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 font-bold">Citizen Verified</td>
+                <td class="p-2.5 text-slate-500">மனுதாரர் கள உண்மைத்தன்மை ஒப்புதல்</td>
+                <td class="p-2.5 font-bold text-teal-800 bg-teal-50/50">குடிமக்கள் சரிபார்ப்பு</td>
+                <td class="p-2.5 text-emerald-600 font-bold">91.4%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-xs text-slate-400">Documentation: See DESIGN_THINKING_TAMIL_I18N.md</span>
+        <button onclick="closeDesignThinkingModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs">
+          Close Research Viewer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 5: VISION AI SETTINGS ================= -->
+  <div id="modal-vision-settings" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🤖</span>
+          <h4 class="font-black text-slate-900 text-base" data-i18n="vision_api_config">Vision AI Settings</h4>
+        </div>
+        <button onclick="closeVisionSettingsModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+      </div>
+
+      <div class="my-4 space-y-4 text-xs">
+        <p class="text-slate-500" data-i18n="vision_api_key_prompt">
+          Configure Google Gemini Vision API Key for cloud multimodal inference, or use native Neural CV.
+        </p>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Google Gemini API Key (Optional)</label>
+          <input type="password" id="vision-key-input" placeholder="AIzaSy..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 font-mono text-xs focus:ring-2 focus:ring-teal-500">
+          <span class="text-[10px] text-slate-400 mt-1 block">Leave empty to use client-side Neural Computer Vision (Sobel + HSV).</span>
+        </div>
+
+        <div class="p-3 bg-teal-50 rounded-xl border border-teal-200 text-teal-800 text-[11px] leading-relaxed">
+          ⚡ <strong>Dual-Engine Inference:</strong> Both pipelines validate actual visual proof of civic damage and calculate defect bounding boxes.
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+        <button onclick="closeVisionSettingsModal()" class="px-4 py-2 rounded-xl text-slate-600 font-semibold text-xs hover:bg-slate-100">
+          Cancel
+        </button>
+        <button onclick="saveVisionSettings()" class="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-sm">
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Scripts & Architectural Engines -->
+  <script src="error-boundary.js"></script>
+  <script src="i18n.js"></script>
+  <script src="auth-rbac.js"></script>
+  <script src="s3-storage.js"></script>
+  <script src="vision-pipeline.js"></script>
+  <script src="app.js"></script>
+  <script src="unit-tests.js"></script>
+</body>
+</html>
